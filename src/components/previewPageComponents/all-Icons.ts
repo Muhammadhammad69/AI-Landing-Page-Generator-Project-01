@@ -7,7 +7,9 @@ const allIcons = {
 }
 
 export const checkIcons = (iconName: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((allIcons as any)[iconName]) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (allIcons as any)[iconName];
     }
     return undefined;

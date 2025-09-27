@@ -1,10 +1,7 @@
 "use client"
 import {socialPlatformsData } from "@/components/socialPlatformData"
-import {use, useState} from "react"
 import {useUserTemplateData} from "@/contexts/userTemplateData"
 import {UserTemplateContextType, SocialMediaLinkType} from "@/contexts/contextTypes"
-import { platform } from "os"
-import Link from "next/link"
 export const ShowingMediaLink = () => {
     const {userTemplateData} = useUserTemplateData() as UserTemplateContextType
     const socialPlatforms = [...socialPlatformsData]
@@ -23,11 +20,11 @@ export const ShowingMediaLink = () => {
                 const IconComponent = getIconPlatform(platform.platform); ;
                 return (
                     <div key={platform.id}>
-                        <Link href={platform.url} target="_blank">
+                        <a href={platform.url} target="_blank"  rel="noopener noreferrer">
                          {
                             IconComponent && <IconComponent className={`w-6 h-6 ${getPlatformColor(platform.platform)}`}/>
                          }
-                        </Link>
+                        </a>
                     </div>
                 )
             })}

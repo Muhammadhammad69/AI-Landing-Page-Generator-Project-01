@@ -5,7 +5,6 @@ import {
   Download,
   Eye,
   Sparkles,
-  
   Rocket,
 } from "lucide-react";
 import { colorThemes } from "@/components/color/colorThemes";
@@ -14,7 +13,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -25,10 +23,10 @@ import {UserTemplateContextType, UserTemplateDataType} from "@/contexts/contextT
 import { useRouter } from 'next/navigation'
 import {SocialMediaLinks} from "./socialMediaLinks"
 import { useEffect } from "react";
-
+import {showSwal} from "@/components/alerts/sweetAlert"
 export const Homepage = () => {
   const router = useRouter();
-  const {userTemplateData, addTemplateData, isGenerating, setIsGenerating, setShowPreview, setIsIndustryChanged, isIndustryChanged, setGeneratedContent } = useUserTemplateData() as UserTemplateContextType;
+  const {userTemplateData, addTemplateData, isGenerating, setIsGenerating, setShowPreview, setIsIndustryChanged, setGeneratedContent } = useUserTemplateData() as UserTemplateContextType;
   
   const industries = [
   "Technology",
@@ -50,10 +48,10 @@ export const Homepage = () => {
     colorTheme: "blue",
     socialMediaLinksInfo: "",
   });
-  // if(userTemplateData.businessName )
-  const handleSubmit = (e: any) => {
+  
+  const handleSubmit = () => {
     if (!formData.businessName || !formData.industry) {
-      alert("Please fill in all required fields");
+      showSwal("Something went wrong","Please fill in all required fields","error")
       return;
     }
     addTemplateData(formData, "undefined");
@@ -69,8 +67,7 @@ export const Homepage = () => {
     }, 2000);
   };
 
-  const handleInputChange = (e: any) => {
-    console.log("value changed", isIndustryChanged)
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prevFormData) => {
       return {
         ...prevFormData,
@@ -81,8 +78,6 @@ export const Homepage = () => {
   const handleSelectChange = (name:string, value:string)=>{
     setGeneratedContent([])
     setFormData((prevDataForm)=>{
-      
-      console.log("value changed", isIndustryChanged)
       return {
         ...prevDataForm,
         [name]: value
@@ -90,11 +85,11 @@ export const Homepage = () => {
     })
   }
   useEffect(()=>{
-    console.log("calling HomePage useeffect", userTemplateData)
     if(userTemplateData.businessName.length === 0 || userTemplateData.industry.length === 0){
       return
     }
     setFormData(userTemplateData)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">

@@ -40,7 +40,6 @@ export const UserTemplateDataProvider: React.FC<{
       });
     }
     if (typeof links !== "string") {
-      console.log("links", links);
       setUserTemplateData({ ...userTemplateData, socialMediaLinksInfo: links });
     }
   };

@@ -1,17 +1,16 @@
-import { ClipLoader } from "react-spinners";
 
 const Loader = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center border-[#e81111]">
-      <ClipLoader
-        color="#a5a2a2"
-        cssOverride={{
-          borderWidth: "6px",
-        }}
-        loading
-        size={55}
-        speedMultiplier={1}
-      />
+    <div className="">
+      <div 
+      className="animate-spin rounded-full border-4 border-gray-200"
+      style={{ 
+        width: 60, 
+        height: 60, 
+        borderTopColor: "#2563eb",
+        borderRightColor: "#2563eb"
+      }}
+    />
     </div>
   );
 };

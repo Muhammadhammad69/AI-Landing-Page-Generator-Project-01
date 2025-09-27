@@ -9,7 +9,7 @@ import parse from "html-react-parser";
 import { PreviewHeader } from "./previewHeader";
 import { checkIcons } from "./all-Icons";
 import {useRef} from "react"
-import {Loader} from "@/components/loader/loader"
+import Loading from "@/app/preview/loading";
 const PreviewPage = () => {
   const pageRef = useRef<HTMLDivElement>(null);
   
@@ -22,23 +22,23 @@ const PreviewPage = () => {
     setGeneratedContent,
   } = useUserTemplateData() as UserTemplateContextType;
   const colorTheme = userTemplateData.colorTheme;
-  const theme: any = colorThemes[colorTheme as keyof typeof colorThemes];
+  const theme = colorThemes[colorTheme];
 
   const SvgIcon = ({ svgString }: { svgString: string }) => {
     return <>{parse(svgString)}</>;
   };
   useEffect(() => {
-    console.log("calling useEffect");
+    
     if (
       userTemplateData.businessName.length === 0 ||
       userTemplateData.industry.length === 0
     ) {
-      console.log("userTemplateData");
+      
       setIsCallingGemini(false);
       return;
     }
     if (!isIndustryChanged) {
-      console.log("industry");
+     
       setIsCallingGemini(false);
       return;
     }
@@ -61,7 +61,7 @@ const PreviewPage = () => {
           setGeneratedContent([generatedData]);
           setIsIndustryChanged(false);
         }
-        // console.log("data", data);
+        
         setIsCallingGemini(false);
       } catch (error) {
         setIsCallingGemini(false);
@@ -69,10 +69,16 @@ const PreviewPage = () => {
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCallingGemini]);
-  // console.log("generatedContent", generatedContent);
-  if (isCallingGemini) return <><Loader/></>;
-  if (generatedContent.length === 0) return <div>No data</div>;
+  
+  if (isCallingGemini) return <><Loading/></>;
+  if (!isCallingGemini && generatedContent.length === 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const error:any = new Error("Data not found");
+  error.status = 500;
+  throw error; // error.tsx ko trigger karega
+}
   return (
     <>
       <div className="min-h-screen bg-gray-100" >
@@ -164,6 +170,9 @@ const PreviewPage = () => {
               </p>
 
               {/* Social Media Links */}
+              
+              <>
+              {(userTemplateData.socialMediaLinksInfo instanceof Array) &&(userTemplateData.socialMediaLinksInfo.length > 0) && (
               <div className="mb-8">
                 <h3 className={`text-lg font-semibold ${theme.text} mb-3`}>
                   Follow Us
@@ -172,7 +181,8 @@ const PreviewPage = () => {
                   <ShowingMediaLink />
                 </div>
               </div>
-
+              )}
+                </>
               {/* Newsletter Signup */}
               <div className="border-t pt-6">
                 <h3 className={`text-lg font-semibold ${theme.text} mb-3`}>

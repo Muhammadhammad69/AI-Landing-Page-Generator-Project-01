@@ -3,7 +3,7 @@ import { useUserTemplateData } from "@/contexts/userTemplateData";
 import { UserTemplateContextType } from "@/contexts/contextTypes";
 import  JSZip  from "jszip"
 import { saveAs } from "file-saver";
-export const DownloadHtml = (props: { pageRef: any }) => {
+export const DownloadHtml = (props: { pageRef: React.RefObject<HTMLDivElement | null> }) => {
   const { userTemplateData, generatedContent } =
     useUserTemplateData() as UserTemplateContextType;
   const pageRef = props.pageRef;
@@ -17,6 +17,8 @@ export const DownloadHtml = (props: { pageRef: any }) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${userTemplateData.businessName}</title>
     <meta name="description" content="${generatedContent[0].tagline}">
+    <meta name="keywords" content="${userTemplateData.businessName}, ${userTemplateData.industry}, ${generatedContent[0].headline}">
+    <meta name="author" content="${userTemplateData.businessName}">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
@@ -26,8 +28,6 @@ ${pageRef.current ? pageRef.current.outerHTML : "No data"}
 </body>
 </html>
     `;
-    console.log("useRef", pageRef.current.outerHTML);
-    console.log("useRef2", pageRef.current);
     const zip = new JSZip();
 
     const folder = zip.folder(

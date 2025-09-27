@@ -1,4 +1,14 @@
-const colorThemes = {
+export interface ColorType {
+    [key: string]: {
+        primary: string;
+        secondary: string;
+        accent: string;
+        bg: string;
+        text: string;
+    }
+}
+
+const colorThemes: ColorType = {
     blue: {
       primary: '#2563EB',
       secondary: '#1D4ED8',

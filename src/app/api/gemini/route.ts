@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { BrandingSchema } from "../outputType"
-import { success, z } from "zod";
+import { z } from "zod";
 
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
@@ -75,16 +75,13 @@ Output strictly in this JSON format:
                     responseSchema: z.toJSONSchema(BrandingSchema),
                 }
             });
-        // console.log("hello", process.env.GEMINI_API_KEY!)
-        // console.log("Business Name===>>>", businessName, "\n")
-        // console.log("Industry===>>>", industry, "\n")
-        // console.log("Slogan===>>>", slogan, "\n")
         let parsedJson;
         try {
             if (response.text) {
                 parsedJson = JSON.parse(response.text);
             }
         } catch (err) {
+            console.log(err)
             return NextResponse.json(
                 {
                     data: "Unable to generate",
@@ -109,7 +106,7 @@ Output strictly in this JSON format:
                 }
             )
         }
-        console.log("response", (safeParsed.data), "\n")
+        
         return NextResponse.json(
             {
                 data: safeParsed.data,

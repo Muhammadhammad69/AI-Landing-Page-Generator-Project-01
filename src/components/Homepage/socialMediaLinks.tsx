@@ -5,20 +5,11 @@ import {
   Trash2,
 } from "lucide-react";
 import {
-  FaFacebook,
-  FaYoutube,
-  FaTwitter,
-  FaInstagram,
-  FaLinkedin,
-  FaTiktok,
-} from "react-icons/fa";
-import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
   SelectLabel,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -27,6 +18,7 @@ import {useUserTemplateData} from "@/contexts/userTemplateData"
 import {UserTemplateContextType, SocialMediaLinkType } from "@/contexts/contextTypes"
 import {socialPlatformsData} from "@/components/socialPlatformData"
 import {useEffect} from "react"
+import {showSwal} from "@/components/alerts/sweetAlert"
 export const SocialMediaLinks = () => {
   const {userTemplateData,addTemplateData} = useUserTemplateData() as UserTemplateContextType;
   
@@ -45,7 +37,8 @@ export const SocialMediaLinks = () => {
           socialMediaLinks[i].platform === "" ||
           socialMediaLinks[i].url === ""
         ) {
-          alert("Please fill url and platform field");
+          
+          showSwal("Something went wrong","Please fill url and platform field","error")
           return;
         }
       }
@@ -70,8 +63,6 @@ export const SocialMediaLinks = () => {
       }
       return platform;
     });
-    // console.log("imported social platforms", socialPlatformsData);
-    // console.log("local social platforms", socialPlatforms);
   };
 
   const removeSocialLink = (id: number) => {
@@ -93,13 +84,6 @@ export const SocialMediaLinks = () => {
       link.id === id ? { ...link, [field]: value } : link
     );
     setSocialMediaLinks(updatedLinks);
-
-    // Call parent callback if provided
-    // if (onSocialMediaChange) {
-    //   onSocialMediaChange(
-    //     updatedLinks.filter((link) => link.platform && link.url)
-    //   );
-    // }
   };
 
   const getPlatformIcon = (platform: string) => {
@@ -115,6 +99,7 @@ export const SocialMediaLinks = () => {
     if(userTemplateData.socialMediaLinksInfo.length > 0 && typeof userTemplateData.socialMediaLinksInfo !== 'string'){
       setSocialMediaLinks(userTemplateData.socialMediaLinksInfo);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
   return (
@@ -216,7 +201,6 @@ export const SocialMediaLinks = () => {
 
       {/* Preview Section */}
       <div className="mt-8 pt-6 border-t">
-        {/* <h3 className="text-lg font-semibold text-gray-800 mb-4">Preview</h3> */}
         <div className="flex gap-4 flex-wrap">
           {socialMediaLinks
             .filter((link) => link.platform && link.url)

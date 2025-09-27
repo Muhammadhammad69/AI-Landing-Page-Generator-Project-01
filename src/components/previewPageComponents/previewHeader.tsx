@@ -1,10 +1,8 @@
 
-import { Download } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import {DownloadHtml} from "./downloadHtml"
-export const PreviewHeader = (props:{businessName:string, pageRef:any}) => {
-    // console.log("businessName", props.businessName)
+export const PreviewHeader = (props:{businessName:string, pageRef: React.RefObject<HTMLDivElement | null>}) => {
   return (
     <>
       {/* Preview Header */}
