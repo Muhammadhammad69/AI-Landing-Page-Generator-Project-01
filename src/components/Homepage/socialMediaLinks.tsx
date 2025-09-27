@@ -19,9 +19,10 @@ import {UserTemplateContextType, SocialMediaLinkType } from "@/contexts/contextT
 import {socialPlatformsData} from "@/components/socialPlatformData"
 import {useEffect} from "react"
 import {showSwal} from "@/components/alerts/sweetAlert"
+import { SocialLinks } from "social-links";
 export const SocialMediaLinks = () => {
   const {userTemplateData,addTemplateData} = useUserTemplateData() as UserTemplateContextType;
-  
+  const socialLinks = new SocialLinks()
   const [socialMediaLinks, setSocialMediaLinks] = useState<SocialMediaLinkType[]>([
     { id: 1, platform: "", url: "", disabled: false },
   ]);
@@ -29,7 +30,13 @@ export const SocialMediaLinks = () => {
   const [socialPlatforms, setSocialPlatform] = useState(
     [...socialPlatformsData]
   )
-
+  const validateLink = (profileName:string, url: string) => {
+    const isValidLink = socialLinks.isValid(profileName, url)
+    if(isValidLink){
+      return socialLinks.sanitize(profileName, url)
+    }
+    return false
+  }
   const addSocialLink = () => {
     for (let i = 0; i < socialMediaLinks.length; i++) {
       if (socialMediaLinks[i].disabled === false) {
@@ -40,9 +47,20 @@ export const SocialMediaLinks = () => {
           
           showSwal("Something went wrong","Please fill url and platform field","error")
           return;
+        }else if (socialMediaLinks[i].platform && socialMediaLinks[i].url){
+          const profileName = socialMediaLinks[i].platform
+          const url = socialMediaLinks[i].url
+          const checkLink = validateLink(profileName, url)
+          if(!checkLink){
+            showSwal("Something went wrong","Please Enter Valid Link","error")
+            return
+          }else if (checkLink){
+            socialMediaLinks[i].url = checkLink
+          }
         }
       }
     }
+
     const newId = Math.max(...socialMediaLinks.map((link) => link.id)) + 1;
     setSocialMediaLinks([
       ...socialMediaLinks,
