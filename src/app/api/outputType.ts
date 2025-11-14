@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-
-// Feature structure: matches your requested format
-export const FeatureSchema = z.object({
+// ** For Input **
+// Feature structure: matches your requested format 
+export const FeatureSchemaInput = z.object({
     mainHeading: z.string()
         .min(1, { message: 'Main-Heading is required' })
         .max(30, { message: 'Main-Heading is too long (max 30 chars)' }),
@@ -24,7 +24,7 @@ export const FeatureSchema = z.object({
 
 
 // Full branding output schema
-export const BrandingSchema = z.object({
+export const BrandingSchemaInput = z.object({
     // Slogan is optional; user may provide it or leave it empty
     slogan: z.string().max(45).optional(),
 
@@ -37,9 +37,36 @@ export const BrandingSchema = z.object({
 
 
     // Features: array of 3-5 items, each following FeatureSchema
-    features: z.array(FeatureSchema).min(3).max(5),
+    features: z.array(FeatureSchemaInput).min(3).max(5),
+});
+
+// ** For Output **
+export const FeatureSchemaOutput = z.object({
+    mainHeading: z.string(),
+
+    content: z.string(),
+
+    // iconName for reference (e.g. Globe, Zap, ShieldCheck)
+    iconName: z.string(),
+
+
+    // svg field will hold actual inline SVG string
+    iconSvg: z.string()
+        .regex(/^<svg[\s\S]*<\/svg>$/, { message: 'Must be valid inline SVG markup' }),
+});
+
+export const BrandingSchemaOutput = z.object({
+    slogan: z.string().optional(),
+
+    headline: z.string(),
+    tagline: z.string(),
+    cta: z.string(),
+    aboutDetails: z.string(),
+
+    features: z.array(FeatureSchemaOutput), // min/max removed
 });
 
 
 // TypeScript type helper
-export type Branding = z.infer<typeof BrandingSchema>;
+export type Branding = z.infer<typeof BrandingSchemaInput>;
+export type BrandingOutput = z.infer<typeof BrandingSchemaOutput>;

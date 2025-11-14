@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
-import { GoogleGenAI } from "@google/genai";
-import { BrandingSchema } from "../outputType"
+import { GenerateContentResponse, GoogleGenAI } from "@google/genai";
+import { BrandingSchemaInput, BrandingSchemaOutput } from "../outputType"
 import { z } from "zod";
 
 
@@ -11,6 +11,7 @@ export const POST = async (req: NextRequest) => {
         if (businessName.length == 0 || industry.length == 0) {
             return NextResponse.json({ data: "Unable to generate", success: false, message: "Missing required fields" }, { status: 400 });
         }
+        
         const prompt = `
 You are a professional brand strategist and copywriter.  
 I will provide you with the following details:  
@@ -66,15 +67,30 @@ Create branding content strictly in JSON format that matches the following rules
 
 Output strictly in this JSON format:     
     `
-        const response = await ai.models.generateContent(
-            {
-                model: "gemini-2.5-flash",
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: z.toJSONSchema(BrandingSchema),
+        // const response = await ai.models.generateContent(
+        //     {
+        //         model: "gemini-2.5-flash",
+        //         contents: prompt,
+        //         config: {
+        //             responseMimeType: "application/json",
+        //             responseSchema: z.toJSONSchema(BrandingSchemaInput),
+        //         }
+        //     });
+
+        const response = await safeGeminiRequest(prompt);
+
+        if (typeof response === "string") {
+            return NextResponse.json(
+                {
+                    data: "Unable to generate",
+                    success: false,
+                    message: response
+                },
+                {
+                    status: 503
                 }
-            });
+            )
+        }
         let parsedJson;
         try {
             if (response.text) {
@@ -93,7 +109,9 @@ Output strictly in this JSON format:
                 }
             )
         }
-        const safeParsed = BrandingSchema.safeParse(parsedJson);
+        
+        const safeParsed = BrandingSchemaOutput.safeParse(parsedJson);
+       
         if (!safeParsed.success) {
             return NextResponse.json(
                 {
@@ -132,4 +150,45 @@ Output strictly in this JSON format:
         )
     }
 
+}
+
+
+
+async function safeGeminiRequest(prompt: string): Promise<GenerateContentResponse | string> {
+  let retries = 4;
+    console.log(retries);
+  while (retries > 0) {
+    try {
+       const response = await ai.models.generateContent(
+            {
+                model: "gemini-2.5-flash",
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: z.toJSONSchema(BrandingSchemaInput),
+                }
+            });
+
+      return response;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      // model overloaded
+       const statusCode =
+    error?.status || error?.error?.status || error?.error?.code || error?.code;
+    console.log("status code ===>>>", statusCode)
+      if (statusCode === 503) {
+        console.log("Model overloaded, retrying...");
+
+        retries--;
+
+        // exponential backoff
+        const wait = (4 - retries) * 1000;
+        await new Promise((res) => setTimeout(res, wait));
+      } else {
+        throw error; // normal errors throw back
+      }
+    }
+  }
+  return "Gemini service unavailable after retries.";
+  throw new Error("Gemini service unavailable after retries.");
 }
