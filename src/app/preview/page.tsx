@@ -4,7 +4,6 @@ export default function Preview() {
         <>
             {/* <div>Preview</div> */}
             <PreviewPage />
-            
         </>
     );
 }
