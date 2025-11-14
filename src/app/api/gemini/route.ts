@@ -170,6 +170,7 @@ async function safeGeminiRequest(prompt: string): Promise<GenerateContentRespons
             });
 
       return response;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // model overloaded
        const statusCode =
