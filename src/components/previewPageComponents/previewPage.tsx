@@ -43,6 +43,7 @@ const PreviewPage = () => {
       return;
     }
     const fetchData = async () => {
+      console.log("calling api ===>>>")
       try {
         const resp = await fetch("/api/gemini", {
           method: "POST",
