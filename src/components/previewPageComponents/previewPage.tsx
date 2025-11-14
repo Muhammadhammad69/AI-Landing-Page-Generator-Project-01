@@ -38,11 +38,15 @@ const PreviewPage = () => {
       return;
     }
     if (!isIndustryChanged) {
-     
       setIsCallingGemini(false);
       return;
     }
+    if(!isCallingGemini){
+      return
+    }
+    // setIsCallingGemini(true);
     const fetchData = async () => {
+      console.log("fetching data ===>>>")
       try {
         const resp = await fetch("/api/gemini", {
           method: "POST",
@@ -59,6 +63,7 @@ const PreviewPage = () => {
         const generatedData = data.data as Branding;
         if (data.success) {
           setGeneratedContent([generatedData]);
+          console.log("Data fetched successfully:", data);
           setIsIndustryChanged(false);
         }
         
@@ -73,7 +78,7 @@ const PreviewPage = () => {
   }, [isCallingGemini]);
   
   if (isCallingGemini) return <><Loading/></>;
-  if (!isCallingGemini && generatedContent.length === 0) {
+  if (generatedContent.length === 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const error:any = new Error("Data not found");
   error.status = 500;
@@ -83,7 +88,7 @@ const PreviewPage = () => {
     <>
       <div className="min-h-screen bg-gray-100" >
         <PreviewHeader businessName={userTemplateData.businessName}
-  pageRef={pageRef}/>
+        pageRef={pageRef}/>
         <div className={`min-h-screen bg-gradient-to-br ${theme.bg}`} ref={pageRef}>
           {/* Navigation */}
           <nav className="bg-white shadow-sm">

@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { GoogleGenAI } from "@google/genai";
-import { BrandingSchema } from "../outputType"
+import { BrandingSchemaInput, BrandingSchemaOutput } from "../outputType"
 import { z } from "zod";
 
 
@@ -11,6 +11,7 @@ export const POST = async (req: NextRequest) => {
         if (businessName.length == 0 || industry.length == 0) {
             return NextResponse.json({ data: "Unable to generate", success: false, message: "Missing required fields" }, { status: 400 });
         }
+        
         const prompt = `
 You are a professional brand strategist and copywriter.  
 I will provide you with the following details:  
@@ -72,9 +73,10 @@ Output strictly in this JSON format:
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",
-                    responseSchema: z.toJSONSchema(BrandingSchema),
+                    responseSchema: z.toJSONSchema(BrandingSchemaInput),
                 }
             });
+        
         let parsedJson;
         try {
             if (response.text) {
@@ -93,7 +95,9 @@ Output strictly in this JSON format:
                 }
             )
         }
-        const safeParsed = BrandingSchema.safeParse(parsedJson);
+        
+        const safeParsed = BrandingSchemaOutput.safeParse(parsedJson);
+       
         if (!safeParsed.success) {
             return NextResponse.json(
                 {
