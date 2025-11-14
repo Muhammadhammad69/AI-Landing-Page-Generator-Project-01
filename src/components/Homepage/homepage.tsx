@@ -96,17 +96,18 @@ export const Homepage = () => {
       {/* Header */}
       <div className="bg-white shadow-sm max-sm:flex">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="sm:flex items-center justify-between py-6 space-y-4 sm:space-y-0 ">
+          <div className="sm:flex items-center py-6 space-y-4 space-x-4 sm:space-y-0 ">
             <div className="flex items-center space-x-3">
               <Sparkles className="w-8 h-8 text-blue-600" />
               <h1 className="max-sm:text-xl  text-2xl font-bold text-gray-900">
                 AI Landing Page Generator
               </h1>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <Rocket className="w-8 h-8 text-blue-500" />
+            {/* <div className="flex items-center space-x-2 text-sm text-gray-500">
+              <Rocket className="w-6 h-6 text-blue-500" />
               <span>Create professional pages in seconds</span>
-            </div>
+            </div> */}
+
           </div>
         </div>
       </div>
