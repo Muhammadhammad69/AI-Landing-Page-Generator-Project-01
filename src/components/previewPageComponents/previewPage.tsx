@@ -8,12 +8,25 @@ import { Branding } from "@/app/api/outputType";
 import parse from "html-react-parser";
 import { PreviewHeader } from "./previewHeader";
 import { checkIcons } from "./all-Icons";
-import {useRef} from "react"
+import { useRef } from "react";
 import Loading from "@/app/preview/loading";
+
+interface HttpError extends Error {
+  status?: number;
+}
+
+function throwError(message:string, code:number):never{
+  const error: HttpError = new Error(message);
+  error.status = code;
+  throw error;
+}
+
 const PreviewPage = () => {
   const pageRef = useRef<HTMLDivElement>(null);
-  
+
   const [isCallingGemini, setIsCallingGemini] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<undefined | string>(undefined)
   const {
     userTemplateData,
     isIndustryChanged,
@@ -28,25 +41,25 @@ const PreviewPage = () => {
     return <>{parse(svgString)}</>;
   };
   useEffect(() => {
-    
     if (
       userTemplateData.businessName.length === 0 ||
       userTemplateData.industry.length === 0
     ) {
-      
       setIsCallingGemini(false);
-      return;
+      setIsError(true);
+      setErrorMessage("Please fill in all required fields")
+
     }
     if (!isIndustryChanged) {
       setIsCallingGemini(false);
       return;
     }
-    if(!isCallingGemini){
-      return
+    if (!isCallingGemini) {
+      return;
     }
     // setIsCallingGemini(true);
     const fetchData = async () => {
-      console.log("fetching data ===>>>")
+      
       try {
         const resp = await fetch("/api/gemini", {
           method: "POST",
@@ -63,10 +76,16 @@ const PreviewPage = () => {
         const generatedData = data.data as Branding;
         if (data.success) {
           setGeneratedContent([generatedData]);
-          console.log("Data fetched successfully:", data);
+         
           setIsIndustryChanged(false);
+          setIsError(false);
         }
-        
+        if (!data.success) {
+          
+          setIsError(true);
+          setErrorMessage(data.message)
+          
+        }
         setIsCallingGemini(false);
       } catch (error) {
         setIsCallingGemini(false);
@@ -76,20 +95,26 @@ const PreviewPage = () => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCallingGemini]);
-  
-  if (isCallingGemini) return <><Loading/></>;
-  if (generatedContent.length === 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const error:any = new Error("Data not found");
-  error.status = 500;
-  throw error; // error.tsx ko trigger karega
-}
+
+  if (isCallingGemini)
+    return (
+      <>
+        <Loading />
+      </>
+    );
+   if(isError) return throwError(errorMessage || "Something went wrong", 500)
+
   return (
     <>
-      <div className="min-h-screen bg-gray-100" >
-        <PreviewHeader businessName={userTemplateData.businessName}
-        pageRef={pageRef}/>
-        <div className={`min-h-screen bg-gradient-to-br ${theme.bg}`} ref={pageRef}>
+      <div className="min-h-screen bg-gray-100">
+        <PreviewHeader
+          businessName={userTemplateData.businessName}
+          pageRef={pageRef}
+        />
+        <div
+          className={`min-h-screen bg-gradient-to-br ${theme.bg}`}
+          ref={pageRef}
+        >
           {/* Navigation */}
           <nav className="bg-white shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,10 +144,10 @@ const PreviewPage = () => {
               </p>
               <h1
                 className={`text-3xl sm:text-5xl font-bold ${theme.text} mb-6 break-words`}
-              >   
+              >
                 {generatedContent[0].headline}
               </h1>
-              <p className="sm:text-xl text-gray-600 mb-8 max-w-3xl mx-auto">     
+              <p className="sm:text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
                 {generatedContent[0].tagline}
               </p>
               <button
@@ -144,7 +169,10 @@ const PreviewPage = () => {
                     {(() => {
                       const IconComponent = checkIcons(feature.iconName);
                       return IconComponent ? (
-                        <IconComponent className="w-12 h-12 mx-auto mb-4" style={{ color: theme.primary }} />
+                        <IconComponent
+                          className="w-12 h-12 mx-auto mb-4"
+                          style={{ color: theme.primary }}
+                        />
                       ) : (
                         <div
                           className="w-12 h-12 mx-auto mb-4 "
@@ -158,9 +186,7 @@ const PreviewPage = () => {
                     <h3 className="text-lg sm:text-xl font-semibold mb-2">
                       {feature.mainHeading}
                     </h3>
-                    <p className="text-gray-600">
-                      {feature.content}
-                    </p>
+                    <p className="text-gray-600">{feature.content}</p>
                   </div>
                 );
               })}
@@ -175,19 +201,22 @@ const PreviewPage = () => {
               </p>
 
               {/* Social Media Links */}
-              
+
               <>
-              {(userTemplateData.socialMediaLinksInfo instanceof Array) &&(userTemplateData.socialMediaLinksInfo.length > 0) && (
-              <div className="mb-8">
-                <h3 className={`text-lg font-semibold ${theme.text} mb-3`}>
-                  Follow Us
-                </h3>
-                <div className="flex space-x-4">
-                  <ShowingMediaLink />
-                </div>
-              </div>
-              )}
-                </>
+                {userTemplateData.socialMediaLinksInfo instanceof Array &&
+                  userTemplateData.socialMediaLinksInfo.length > 0 && (
+                    <div className="mb-8">
+                      <h3
+                        className={`text-lg font-semibold ${theme.text} mb-3`}
+                      >
+                        Follow Us
+                      </h3>
+                      <div className="flex space-x-4">
+                        <ShowingMediaLink />
+                      </div>
+                    </div>
+                  )}
+              </>
               {/* Newsletter Signup */}
               <div className="border-t pt-6">
                 <h3 className={`text-lg font-semibold ${theme.text} mb-3`}>
